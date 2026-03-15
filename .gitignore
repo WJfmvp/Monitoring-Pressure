@@ -1,0 +1,7 @@
+# .gitignore 文件内容
+# 排除环境变量文件
+.env
+# 其他常见排除项（可选）
+/bin
+/vendor
+*.exe

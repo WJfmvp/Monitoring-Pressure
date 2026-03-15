@@ -2,43 +2,32 @@ package util
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type ResponseData struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+	Code int         `json:"code"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data,omitempty"`
 }
 
-// ResponseError /*
-//
-//	{
-//		"code": 0, //0表示成功,其他表示失败
-//		"message":"success"， //用来描述失败的原因
-//		"data":{
-//
-//		}
-//	}
-//
-// *//*
-
-func ResponseError(ctx *gin.Context, code int) {
-
-	responseData := &ResponseData{
-		Code:    code,
-		Message: GetMessage(code),
-	}
-
-	ctx.JSON(http.StatusOK, responseData)
+func ResponseSuccess(c *gin.Context, data interface{}) {
+	c.JSON(200, ResponseData{
+		Code: ErrCodeSuccess,
+		Msg:  GetMessage(ErrCodeSuccess),
+		Data: data,
+	})
 }
 
-func ResponseSuccess(ctx *gin.Context, data interface{}) {
-	responseData := &ResponseData{
-		Code:    ErrCodeSuccess,
-		Message: GetMessage(ErrCodeSuccess),
-		Data:    data,
-	}
+func ResponseError(c *gin.Context, code int) {
+	c.JSON(200, ResponseData{
+		Code: code,
+		Msg:  GetMessage(code),
+	})
+}
 
-	ctx.JSON(http.StatusOK, responseData)
+func ResponseErrorWithMsg(c *gin.Context, code int, msg string) {
+	c.JSON(200, ResponseData{
+		Code: code,
+		Msg:  msg,
+	})
 }
