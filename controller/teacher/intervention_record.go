@@ -1,6 +1,7 @@
 package teacher
 
 import (
+	"Monitoring-Pressure/service"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
