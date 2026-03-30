@@ -1,4 +1,4 @@
-package DataCollection
+package data_collection
 
 import (
 	"Monitoring-Pressure/models/users"
@@ -8,8 +8,9 @@ import (
 // StudyBehaviorRecord 学习行为
 // 数据来源：学生填写 教师录入 系统导入
 type StudyBehaviorRecord struct {
-	ID     uint  `gorm:"primaryKey"`
-	UserID int64 `gorm:"not null"`
+	ID     uint       `gorm:"primaryKey"`
+	UserID int64      `json:"user_id" gorm:"not null;index"`
+	User   users.User `gorm:"foreignKey:UserID;references:UserID"`
 
 	RecordDate time.Time `gorm:"not null"`
 
@@ -31,6 +32,4 @@ type StudyBehaviorRecord struct {
 
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-
-	User users.User `gorm:"foreignKey:StudentID"`
 }

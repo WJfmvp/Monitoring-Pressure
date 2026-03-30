@@ -1,13 +1,17 @@
-package DataCollection
+package data_collection
 
-import "time"
+import (
+	"Monitoring-Pressure/models/users"
+	"time"
+)
 
 // StressAssessmentResult 存最终压力结果、模型预测、预警结果
 // 来源：Python 模型预测后写回数据库
 type StressAssessmentResult struct {
 	ID uint `json:"id" gorm:"primaryKey;autoIncrement"`
 
-	UserID int64 `json:"user_id" gorm:"not null;index"`
+	UserID int64      `json:"user_id" gorm:"not null;index"`
+	User   users.User `gorm:"foreignKey:UserID;references:UserID"`
 
 	SnapshotID uint `json:"snapshot_id" gorm:"not null;index"`
 

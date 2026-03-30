@@ -1,15 +1,20 @@
-package DataCollection
+package data_collection
 
-import "time"
+import (
+	"Monitoring-Pressure/models/users"
+	"time"
+)
 
 // PsychologicalSelfAssessment 存根据问卷整理出来的心理特征结果
 // 来源：前端问卷提交后写入
 type PsychologicalSelfAssessment struct {
 	ID uint `json:"id" gorm:"primaryKey;autoIncrement"`
 
-	UserID int64 `json:"user_id" gorm:"not null;index"`
+	UserID int64      `json:"user_id" gorm:"not null;index"`
+	User   users.User `gorm:"foreignKey:UserID;references:UserID"`
 
-	QuestionnaireID uint `json:"questionnaire_id" gorm:"index"` // 对应问卷记录
+	QuestionnaireID uint                `json:"questionnaire_id" gorm:"index"` // 对应问卷记录
+	Questionnaire   QuestionnaireRecord `gorm:"foreignKey:QuestionnaireID;references:ID"`
 
 	AssessDate time.Time `json:"assess_date" gorm:"not null;type:date"`
 

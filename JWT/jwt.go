@@ -9,7 +9,7 @@ import (
 	jwtgo "github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte("Monitoring-Pressure-secret-key")
+var jwtKey = []byte("monitoring_pressure-secret-key")
 
 type MyClaims struct {
 	UserID    int64          `json:"user_id"`
@@ -27,7 +27,7 @@ func GenerateToken(userID int64, telephone string, role users.UserRole) (string,
 			ExpiresAt: jwtgo.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)),
 			IssuedAt:  jwtgo.NewNumericDate(time.Now()),
 			NotBefore: jwtgo.NewNumericDate(time.Now()),
-			Issuer:    "Monitoring-Pressure",
+			Issuer:    "monitoring_pressure",
 			Subject:   telephone,
 		},
 	}

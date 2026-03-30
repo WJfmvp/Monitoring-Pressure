@@ -1,8 +1,12 @@
-package Monitoring_Pressure
+package monitoring_pressure
 
-import "Monitoring-Pressure/router"
+import (
+	"Monitoring-Pressure/dao/db"
+	"Monitoring-Pressure/router"
+)
 
 func main() {
 	r := router.SetupRouter()
+	db.InitDB()
 	r.Run(":8080")
 }

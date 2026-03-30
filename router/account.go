@@ -38,6 +38,19 @@ func SetupRouter() *gin.Engine {
 	studentGroup.Use(accountMiddleware.RoleMiddleware(string(users.RoleStudent), string(users.RoleAdmin)))
 	{
 		studentGroup.GET("/home", studentController.GetHomeHandle)
+
+		// 查询成绩
+		studentGroup.GET("/home", studentController.GetMyAcademicRecordListHandle)
+
+		// 心理问卷
+		studentGroup.POST("/psychological/submit", studentController.SubmitPsychologicalAssessmentHandle)
+		studentGroup.GET("/psychological/list", studentController.GetPsychologicalAssessmentListHandle)
+
+		// 压力评估结果
+		studentGroup.GET("/stress/result/latest", studentController.GetLatestStressAssessmentResultHandle)
+
+		// 干预建议记录
+		studentGroup.GET("/intervention/list", studentController.GetMyInterventionRecordListHandle)
 	}
 
 	// 老师路由
@@ -46,6 +59,11 @@ func SetupRouter() *gin.Engine {
 	teacherGroup.Use(accountMiddleware.RoleMiddleware(string(users.RoleTeacher), string(users.RoleAdmin)))
 	{
 		teacherGroup.GET("/home", teacherController.GetHomeHandle)
+
+		// 查看学生相关数据
+		teacherGroup.GET("/student/academic/list", teacherController.GetStudentAcademicRecordListHandle)
+		teacherGroup.GET("/student/stress/list", teacherController.GetStudentStressAssessmentListHandle)
+		teacherGroup.GET("/student/intervention/list", teacherController.GetStudentInterventionRecordListHandle)
 	}
 
 	// 管理员路由
@@ -56,6 +74,20 @@ func SetupRouter() *gin.Engine {
 		adminGroup.GET("/home", adminController.GetHomeHandle)
 		adminGroup.POST("/user/updateRole", adminController.UpdateUserRoleHandle)
 		adminGroup.GET("/user/list", adminController.GetUserListHandle)
+
+		// 成绩 Excel 导入
+		adminGroup.POST("/academic/import", adminController.ImportAcademicExcelHandle)
+		adminGroup.GET("/academic/import/list", adminController.GetAcademicImportRecordListHandle)
+
+		// 成绩数据
+		adminGroup.GET("/academic/list", adminController.GetAcademicRecordListHandle)
+
+		// 压力评估结果
+		adminGroup.GET("/stress/result/list", adminController.GetStressAssessmentResultListHandle)
+
+		// 干预建议模板
+		adminGroup.POST("/intervention/create", adminController.CreateInterventionSuggestionHandle)
+		adminGroup.GET("/intervention/list", adminController.GetInterventionSuggestionListHandle)
 	}
 
 	return r

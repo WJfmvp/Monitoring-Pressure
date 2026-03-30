@@ -1,16 +1,21 @@
-package DataCollection
+package data_collection
 
-import "time"
+import (
+	"Monitoring-Pressure/models/users"
+	"time"
+)
 
 // AcademicRecord 存每个学生每次考试成绩
 // 来源：Excel 解析后批量入库
 type AcademicRecord struct {
 	ID uint `json:"id" gorm:"primaryKey;autoIncrement"`
 
-	UserID int64 `json:"user_id" gorm:"not null;index"`
+	UserID int64      `json:"user_id" gorm:"not null;index"`
+	User   users.User `gorm:"foreignKey:UserID;references:UserID"`
 
 	// 对应哪次Excel导入
-	ImportID uint `json:"import_id" gorm:"index"`
+	ImportID uint                 `json:"import_id" gorm:"index"`
+	Import   AcademicImportRecord `gorm:"foreignKey:ImportID;references:ID"`
 
 	ExamName string    `json:"exam_name" gorm:"type:varchar(100);not null"` // 考试名称
 	Term     string    `json:"term" gorm:"type:varchar(50)"`                // 学期

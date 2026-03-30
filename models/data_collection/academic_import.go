@@ -1,4 +1,4 @@
-package DataCollection
+package data_collection
 
 import "time"
 

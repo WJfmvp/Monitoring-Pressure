@@ -1,6 +1,9 @@
-package DataCollection
+package data_collection
 
-import "time"
+import (
+	"Monitoring-Pressure/models/users"
+	"time"
+)
 
 // InterventionSuggestion 系统里的建议模板库
 // 来源:管理员预先配置
@@ -30,10 +33,14 @@ func (InterventionSuggestion) TableName() string {
 type StudentInterventionRecord struct {
 	ID uint `json:"id" gorm:"primaryKey;autoIncrement"`
 
-	UserID int64 `json:"user_id" gorm:"not null;index"`
+	UserID int64      `json:"user_id" gorm:"not null;index"`
+	User   users.User `gorm:"foreignKey:UserID;references:UserID"`
 
-	ResultID     uint `json:"result_id" gorm:"not null;index"`
-	SuggestionID uint `json:"suggestion_id" gorm:"not null;index"`
+	ResultID uint                   `json:"result_id" gorm:"not null;index"`
+	Result   StressAssessmentResult `gorm:"foreignKey:ResultID;references:ID"`
+
+	SuggestionID uint                   `json:"suggestion_id" gorm:"not null;index"`
+	Suggestion   InterventionSuggestion `gorm:"foreignKey:SuggestionID;references:ID"`
 
 	PushTime time.Time `json:"push_time" gorm:"not null"`
 

@@ -1,13 +1,17 @@
-package DataCollection
+package data_collection
 
-import "time"
+import (
+	"Monitoring-Pressure/models/users"
+	"time"
+)
 
 // StressFeatureSnapshot 把三类数据汇总后的“训练样本表”
 // 把行为 + 成绩 + 心理聚合成一条样本
 type StressFeatureSnapshot struct {
 	ID uint `json:"id" gorm:"primaryKey;autoIncrement"`
 
-	UserID int64 `json:"user_id" gorm:"not null;index"`
+	UserID int64      `json:"user_id" gorm:"not null;index"`
+	User   users.User `gorm:"foreignKey:UserID;references:UserID"`
 
 	SnapshotDate time.Time `json:"snapshot_date" gorm:"not null;type:date"`
 
