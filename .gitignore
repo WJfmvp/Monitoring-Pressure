@@ -4,4 +4,5 @@
 # 其他常见排除项（可选）
 /bin
 /vendor
+random_forest/venv
 *.exe
