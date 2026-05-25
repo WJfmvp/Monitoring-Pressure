@@ -5,79 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="efb61a40-08e0-4bf1-8e75-7a73e5fbc05f" name="Changes" comment="核心算法部分">
-      <change afterPath="$PROJECT_DIR$/scripts/seed.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/service/ml_client.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/service/stress_predict.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/service/teacher_class.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/.env.development" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/.env.production" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/package-lock.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/App.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/api/account.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/api/admin.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/api/request.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/api/student.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/api/teacher.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/layouts/BasicLayout.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/main.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/router/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/stores/user.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/styles/index.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/utils/auth.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/account/Login.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/account/Register.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/account/ResetPassword.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/admin/AcademicImport.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/admin/AcademicImportList.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/admin/AcademicList.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/admin/Home.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/admin/Intervention.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/admin/Statistics.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/admin/StressPredict.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/admin/StressResultList.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/admin/UserList.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/profile/CompleteInfo.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/profile/Profile.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/student/Academic.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/student/Home.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/student/Intervention.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/student/Psychological.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/student/StressResult.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/teacher/ClassOverview.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/teacher/Home.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/teacher/StudentAcademic.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/teacher/StudentDiagnosis.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/teacher/StudentIntervention.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/src/views/teacher/StudentStress.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/vite.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Monitoring-Pressure.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/git_toolbox_blame.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/JWT/jwt.go" beforeDir="false" afterPath="$PROJECT_DIR$/jwt/jwt.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/account/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/account/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/admin/academic.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/admin/academic.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/admin/stress.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/admin/stress.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/admin/user_list.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/admin/user_list.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/student/academic_record_list.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/student/academic_record_list.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/student/psychological_assessment.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/student/psychological_assessment.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/student/student.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/student/student.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dao/db/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/db/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dao/db/user/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/dao/db/user/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/middleware/account/auth_jwt.go" beforeDir="false" afterPath="$PROJECT_DIR$/middleware/account/auth_jwt.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/data_collection/intervention.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/data_collection/intervention.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/random_forest/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/random_forest/app/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/random_forest/app/model_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/random_forest/app/model_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/router/account.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/account.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/intervention.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/intervention.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/verifycode/verifycode.go" beforeDir="false" afterPath="$PROJECT_DIR$/verifycode/verifycode.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -236,10 +164,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Test.TestInitDB in Monitoring-Pressure/dao/db" />
         <item itemvalue="Go Test.TestSendVerifyCodeHandle in Monitoring-Pressure/controller/account (1)" />
         <item itemvalue="Go Test.TestSendVerifyCodeHandle in Monitoring-Pressure/controller/account" />
         <item itemvalue="Go Test.TestLogin2Handle in Monitoring-Pressure/controller/account" />
+        <item itemvalue="Go Test.TestInitDB in Monitoring-Pressure/dao/db" />
         <item itemvalue="Go Test.TestGetProfile in Monitoring-Pressure/controller/account" />
       </list>
     </recent_temporary>
