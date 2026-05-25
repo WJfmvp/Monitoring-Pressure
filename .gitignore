@@ -6,3 +6,5 @@
 /vendor
 random_forest/venv
 *.exe
+static/node_modules
+毕业设计模块详细进度.md

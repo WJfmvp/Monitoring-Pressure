@@ -18,7 +18,7 @@ var DB *gorm.DB // 全局 DB 实例
 // InitDB 初始化数据库连接
 func InitDB() {
 	// 显式加载 .env 文件，确保从文件读取配置
-	err := godotenv.Load("F:/monitoring_pressure/.env")
+	err := godotenv.Load("F:/Monitoring-Pressure/.env")
 	if err != nil {
 		panic(fmt.Sprintf("未找到 .env 文件或加载失败: %v", err)) // 强制抛出错误
 	}

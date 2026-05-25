@@ -5,7 +5,6 @@ import (
 	"Monitoring-Pressure/dao/db/user"
 	"Monitoring-Pressure/id_gen"
 	myjwt "Monitoring-Pressure/jwt"
-	sessionAccount "Monitoring-Pressure/middleware/account"
 	"Monitoring-Pressure/models/users"
 	"Monitoring-Pressure/util"
 	"Monitoring-Pressure/verifycode"
@@ -18,7 +17,7 @@ import (
 // SendVerifyCodeHandle 验证码发送接口
 func SendVerifyCodeHandle(c *gin.Context) {
 	telephone := c.Query("telephone")
-	if telephone == "" {
+	if !isValidTelephone(telephone) {
 		util.ResponseError(c, util.ErrCodeParameter)
 		return
 	}
@@ -34,10 +33,21 @@ func SendVerifyCodeHandle(c *gin.Context) {
 	})
 }
 
+// isValidTelephone 11 位中国大陆手机号
+func isValidTelephone(s string) bool {
+	if len(s) != 11 || s[0] != '1' {
+		return false
+	}
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
+}
+
 // LoginHandle 账号密码登录
 func LoginHandle(c *gin.Context) {
-	sessionAccount.ProcessRequest(c)
-
 	var userInfo users.UserInfo
 	err := c.BindJSON(&userInfo)
 	if err != nil {
@@ -64,16 +74,12 @@ func LoginHandle(c *gin.Context) {
 		return
 	}
 
-	// 登录成功后签发 JWT
+	// 签发 JWT
 	token, err := myjwt.GenerateToken(userInfo.UserID, userInfo.Telephone, userInfo.Role)
 	if err != nil {
 		util.ResponseError(c, util.ErrCodeServerBusy)
 		return
 	}
-
-	// 如果你原来的 session 逻辑还要保留，可以继续保留
-	sessionAccount.SetUserId(userInfo.UserID, c)
-	sessionAccount.ProcessResponse(c)
 
 	util.ResponseSuccess(c, gin.H{
 		"token": token,
@@ -223,33 +229,59 @@ func ResetPasswordHandle(c *gin.Context) {
 	})
 }
 
-// CompleteInformation 完善用户信息
+// CompleteInformation 完善用户信息（需登录，目标用户由 JWT 决定）
 func CompleteInformation(c *gin.Context) {
-	var userInfo users.UserInfo
-	err := c.BindJSON(&userInfo)
-	if err != nil {
+	userIDValue, exists := c.Get("user_id")
+	if !exists {
+		util.ResponseError(c, util.ErrCodeNeedLogin)
+		return
+	}
+	userID, ok := userIDValue.(int64)
+	if !ok || userID <= 0 {
+		util.ResponseError(c, util.ErrCodeNeedLogin)
+		return
+	}
+
+	var req users.UserInfo
+	if err := c.BindJSON(&req); err != nil {
 		util.ResponseError(c, util.ErrCodeParameter)
 		return
 	}
 
-	result := db.DB.Model(&users.UserInfo{}).
-		Where("telephone = ?", userInfo.Telephone).
-		Updates(map[string]interface{}{
-			"username": userInfo.Username,
-			"sex":      userInfo.Sex,
-			"email":    userInfo.Email,
-		})
-	err = result.Error
-	if err != nil {
+	// 至少要有一个字段需要更新
+	updates := map[string]interface{}{}
+	if req.Username != "" {
+		updates["username"] = req.Username
+	}
+	if req.Email != "" {
+		updates["email"] = req.Email
+	}
+	if req.Sex != 0 {
+		updates["sex"] = req.Sex
+	}
+	if len(updates) == 0 {
+		util.ResponseError(c, util.ErrCodeParameter)
+		return
+	}
+
+	result := db.DB.Model(&users.User{}).
+		Where("user_id = ?", userID).
+		Updates(updates)
+
+	if result.Error != nil {
 		util.ResponseError(c, util.ErrCodeServerBusy)
+		return
+	}
+	if result.RowsAffected == 0 {
+		util.ResponseError(c, util.ErrCodeUserNotExist)
 		return
 	}
 
 	util.ResponseSuccess(c, gin.H{
 		"result":   "信息修改成功",
-		"username": userInfo.Username,
-		"sex":      userInfo.Sex,
-		"email":    userInfo.Email,
+		"username": req.Username,
+		"sex":      req.Sex,
+		"email":    req.Email,
 	})
 }
 

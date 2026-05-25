@@ -37,10 +37,10 @@ type StudentInterventionRecord struct {
 	User   users.User `gorm:"foreignKey:UserID;references:UserID"`
 
 	ResultID uint                   `json:"result_id" gorm:"not null;index"`
-	Result   StressAssessmentResult `gorm:"foreignKey:ResultID;references:ID"`
+	Result   StressAssessmentResult `json:"result" gorm:"foreignKey:ResultID;references:ID"`
 
 	SuggestionID uint                   `json:"suggestion_id" gorm:"not null;index"`
-	Suggestion   InterventionSuggestion `gorm:"foreignKey:SuggestionID;references:ID"`
+	Suggestion   InterventionSuggestion `json:"suggestion" gorm:"foreignKey:SuggestionID;references:ID"`
 
 	PushTime time.Time `json:"push_time" gorm:"not null"`
 

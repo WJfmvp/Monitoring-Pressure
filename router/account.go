@@ -14,7 +14,7 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	// 账号相关路由
+	// 账号相关路由（无需登录）
 	accountGroup := r.Group("/account")
 	{
 		accountGroup.GET("/sendVerifyCode", accountController.SendVerifyCodeHandle)
@@ -22,7 +22,6 @@ func SetupRouter() *gin.Engine {
 		accountGroup.POST("/login/code", accountController.Login2Handle)
 		accountGroup.POST("/register", accountController.RegisterHandle)
 		accountGroup.POST("/resetPassword", accountController.ResetPasswordHandle)
-		accountGroup.POST("/completeInformation", accountController.CompleteInformation)
 	}
 
 	// 需要登录才能访问
@@ -30,6 +29,7 @@ func SetupRouter() *gin.Engine {
 	authGroup.Use(accountMiddleware.JWTAuthMiddleware())
 	{
 		authGroup.GET("/account/profile", accountController.GetProfile)
+		authGroup.POST("/account/completeInformation", accountController.CompleteInformation)
 	}
 
 	// 学生路由
@@ -40,7 +40,7 @@ func SetupRouter() *gin.Engine {
 		studentGroup.GET("/home", studentController.GetHomeHandle)
 
 		// 查询成绩
-		studentGroup.GET("/home", studentController.GetMyAcademicRecordListHandle)
+		studentGroup.GET("/academic", studentController.GetMyAcademicRecordListHandle)
 
 		// 心理问卷
 		studentGroup.POST("/psychological/submit", studentController.SubmitPsychologicalAssessmentHandle)
@@ -64,6 +64,12 @@ func SetupRouter() *gin.Engine {
 		teacherGroup.GET("/student/academic/list", teacherController.GetStudentAcademicRecordListHandle)
 		teacherGroup.GET("/student/stress/list", teacherController.GetStudentStressAssessmentListHandle)
 		teacherGroup.GET("/student/intervention/list", teacherController.GetStudentInterventionRecordListHandle)
+
+		// 班级整体压力分布
+		teacherGroup.GET("/class/overview", teacherController.GetClassStressOverviewHandle)
+
+		// 单个学生的压力诊断书
+		teacherGroup.GET("/student/diagnosis", teacherController.GetStudentDiagnosisHandle)
 	}
 
 	// 管理员路由
@@ -84,6 +90,9 @@ func SetupRouter() *gin.Engine {
 
 		// 压力评估结果
 		adminGroup.GET("/stress/result/list", adminController.GetStressAssessmentResultListHandle)
+
+		// 调用随机森林服务进行压力预测
+		adminGroup.POST("/stress/predict", adminController.PredictStressHandle)
 
 		// 干预建议模板
 		adminGroup.POST("/intervention/create", adminController.CreateInterventionSuggestionHandle)

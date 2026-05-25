@@ -49,8 +49,8 @@ class ModelService:
         else:
             probability = 0.0
 
-        df["model_predict_level"] = model_pred
-        df["predict_probability"] = probability
+        df["model_predict_level"] = int(model_pred)
+        df["predict_probability"] = float(probability)
         df["final_level"] = df.apply(final_decision, axis=1)
 
         row = df.iloc[0]

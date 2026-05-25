@@ -1,4 +1,4 @@
-package monitoring_pressure
+package main
 
 import (
 	"Monitoring-Pressure/dao/db"

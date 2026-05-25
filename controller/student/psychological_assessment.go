@@ -4,69 +4,102 @@ import (
 	"Monitoring-Pressure/models/data_collection"
 	"Monitoring-Pressure/service"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
+
+// submitPsychologicalReq 用 string 接收日期，避免 time.Time 默认要求 RFC3339
+type submitPsychologicalReq struct {
+	QuestionnaireID uint   `json:"questionnaire_id" binding:"required"`
+	AssessDate      string `json:"assess_date" binding:"required"` // yyyy-MM-dd
+
+	AnxietyLevel       int `json:"anxiety_level"`
+	LearningMotivation int `json:"learning_motivation"`
+	EmotionalState     int `json:"emotional_state"`
+
+	StressPerception int `json:"stress_perception"`
+	SleepQuality     int `json:"sleep_quality"`
+	FatigueLevel     int `json:"fatigue_level"`
+
+	QuestionnaireScore float64 `json:"questionnaire_score"`
+	Remark             string  `json:"remark"`
+}
+
+// computePsychologicalScore 服务端兜底总分计算（与前端公式一致）
+// 6 项指标各 0-10，正向指标越高压力越大，反向指标越高压力越小。归一到 0-100。
+func computePsychologicalScore(r submitPsychologicalReq) float64 {
+	clamp := func(v int) int {
+		if v < 0 {
+			return 0
+		}
+		if v > 10 {
+			return 10
+		}
+		return v
+	}
+	positive := clamp(r.AnxietyLevel) + clamp(r.StressPerception) + clamp(r.FatigueLevel)
+	inverted := (10 - clamp(r.LearningMotivation)) + (10 - clamp(r.EmotionalState)) + (10 - clamp(r.SleepQuality))
+	raw := float64(positive + inverted) // 0..60
+	score := raw / 60.0 * 100.0
+	// 两位小数
+	return float64(int(score*100+0.5)) / 100.0
+}
 
 // SubmitPsychologicalAssessmentHandle 提交心理问卷
 func SubmitPsychologicalAssessmentHandle(c *gin.Context) {
-	var assessment data_collection.PsychologicalSelfAssessment
+	var req submitPsychologicalReq
 
-	// 绑定前端传递的 JSON 数据到结构体
-	if err := c.ShouldBindJSON(&assessment); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "请求参数格式错误，数据绑定失败",
+			"error": fmt.Sprintf("请求参数格式错误: %v", err),
 		})
 		return
 	}
 
-	// 数据验证：确保核心字段不为空
-	if assessment.QuestionnaireID == 0 {
+	assessDate, err := time.Parse("2006-01-02", req.AssessDate)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "问卷ID不能为空",
+			"error": "评估日期格式错误，应为 yyyy-MM-dd",
 		})
 		return
 	}
 
-	if assessment.AssessDate.IsZero() {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "评估日期不能为空",
-		})
-		return
+	// 若前端没传或传了非法值，服务端兜底重算
+	score := req.QuestionnaireScore
+	if score <= 0 || score > 100 {
+		score = computePsychologicalScore(req)
 	}
 
-	// 获取用户ID，通常是通过JWT解码获取
-	userID, exists := c.Get("user_id")
-	if !exists || userID == nil {
+	userID, ok := getUserIDFromContext(c)
+	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "用户未授权"})
 		return
 	}
 
-	// 设置用户ID
-	assessment.UserID = userID.(int64)
-	assessment.CreatedAt = time.Now()
-	assessment.UpdatedAt = time.Now()
-
-	// 校验问卷分数：确保其合理性
-	if assessment.QuestionnaireScore < 0 || assessment.QuestionnaireScore > 100 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "问卷分数必须在0到100之间",
-		})
-		return
+	assessment := data_collection.PsychologicalSelfAssessment{
+		UserID:             userID,
+		QuestionnaireID:    req.QuestionnaireID,
+		AssessDate:         assessDate,
+		AnxietyLevel:       req.AnxietyLevel,
+		LearningMotivation: req.LearningMotivation,
+		EmotionalState:     req.EmotionalState,
+		StressPerception:   req.StressPerception,
+		SleepQuality:       req.SleepQuality,
+		FatigueLevel:       req.FatigueLevel,
+		QuestionnaireScore: score,
+		Remark:             req.Remark,
 	}
 
-	// 调用服务层处理并保存数据
-	err := service.SubmitPsychologicalAssessment(assessment)
-	if err != nil {
+	if err := service.SubmitPsychologicalAssessment(assessment); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf("提交失败: %v", err),
 		})
 		return
 	}
 
-	// 提交成功
 	c.JSON(http.StatusOK, gin.H{
 		"message": "心理问卷提交成功",
 		"data":    assessment,
@@ -75,16 +108,13 @@ func SubmitPsychologicalAssessmentHandle(c *gin.Context) {
 
 // GetPsychologicalAssessmentListHandle 获取心理自评问卷列表
 func GetPsychologicalAssessmentListHandle(c *gin.Context) {
-	// 获取用户ID，通常是通过 JWT 解码获取
-	userID, exists := c.Get("user_id")
-	if !exists || userID == nil {
+	userID, ok := getUserIDFromContext(c)
+	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "用户未授权"})
-		log.Printf("无效请求：未提供用户ID，无法获取心理自评问卷列表")
 		return
 	}
 
-	// 调用服务层获取该用户的所有心理评估记录
-	assessments, err := service.GetPsychologicalAssessmentsByUserID(userID.(int64))
+	assessments, err := service.GetPsychologicalAssessmentsByUserID(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "获取心理评估记录失败",
@@ -93,16 +123,6 @@ func GetPsychologicalAssessmentListHandle(c *gin.Context) {
 		return
 	}
 
-	// 如果没有找到记录，返回空列表
-	if len(assessments) == 0 {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "没有找到任何心理评估记录",
-			"data":    assessments,
-		})
-		return
-	}
-
-	// 返回获取到的数据
 	c.JSON(http.StatusOK, gin.H{
 		"message": "获取心理评估记录成功",
 		"data":    assessments,

@@ -5,15 +5,28 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"Monitoring-Pressure/service"
+	"Monitoring-Pressure/util"
 )
 
 func ImportAcademicExcelHandle(c *gin.Context) {
+	// operator_id 必须从 JWT 取，避免被前端伪造
+	operatorIDValue, exists := c.Get("user_id")
+	if !exists {
+		util.ResponseError(c, util.ErrCodeNeedLogin)
+		return
+	}
+	operatorID, ok := operatorIDValue.(int64)
+	if !ok || operatorID <= 0 {
+		util.ResponseError(c, util.ErrCodeNeedLogin)
+		return
+	}
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -23,17 +36,7 @@ func ImportAcademicExcelHandle(c *gin.Context) {
 		return
 	}
 
-	operatorIDStr := c.PostForm("operator_id")
-	operatorID, err := strconv.ParseInt(operatorIDStr, 10, 64)
-	if err != nil || operatorID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": 400,
-			"msg":  "operator_id 不合法",
-		})
-		return
-	}
-
-	ext := filepath.Ext(file.Filename)
+	ext := strings.ToLower(filepath.Ext(file.Filename))
 	if ext != ".xlsx" && ext != ".xls" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": 400,
@@ -62,8 +65,7 @@ func ImportAcademicExcelHandle(c *gin.Context) {
 		return
 	}
 
-	err = service.ImportAcademicExcel(savePath, file.Filename, operatorID)
-	if err != nil {
+	if err := service.ImportAcademicExcel(savePath, file.Filename, operatorID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code": 500,
 			"msg":  "导入失败: " + err.Error(),

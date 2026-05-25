@@ -11,17 +11,112 @@ import (
 )
 
 // GetInterventionRecordsByUserID 获取用户的干预建议记录
-func GetInterventionRecordsByUserID(userID int64) ([]data_collection.StudentInterventionRecord, error) {
+type InterventionRecordResp struct {
+	ID             uint                                   `json:"id"`
+	UserID         int64                                  `json:"user_id"`
+	ResultID       uint                                   `json:"result_id"`
+	SuggestionID   uint                                   `json:"suggestion_id"`
+	Suggestion     data_collection.InterventionSuggestion `json:"suggestion"`
+	Result         data_collection.StressAssessmentResult `json:"result"`
+	PushTime       time.Time                              `json:"push_time"`
+	Feedback       string                                 `json:"feedback"`
+	FeedbackStatus int                                    `json:"feedback_status"`
+	CreatedAt      time.Time                              `json:"created_at"`
+	UpdatedAt      time.Time                              `json:"updated_at"`
+}
+
+func toInterventionRecordResp(record data_collection.StudentInterventionRecord) InterventionRecordResp {
+	return InterventionRecordResp{
+		ID:             record.ID,
+		UserID:         record.UserID,
+		ResultID:       record.ResultID,
+		SuggestionID:   record.SuggestionID,
+		Suggestion:     record.Suggestion,
+		Result:         record.Result,
+		PushTime:       record.PushTime,
+		Feedback:       record.Feedback,
+		FeedbackStatus: record.FeedbackStatus,
+		CreatedAt:      record.CreatedAt,
+		UpdatedAt:      record.UpdatedAt,
+	}
+}
+
+func GetInterventionRecordsByUserID(userID int64) ([]InterventionRecordResp, error) {
 	var interventions []data_collection.StudentInterventionRecord
 
-	// 查询指定用户的所有干预建议记录
-	err := db.DB.Where("user_id = ?", userID).Find(&interventions).Error
+	err := db.DB.
+		Preload("Suggestion").
+		Preload("Result").
+		Where("user_id = ?", userID).
+		Order("push_time DESC").
+		Find(&interventions).Error
 	if err != nil {
 		return nil, fmt.Errorf("查询干预建议记录失败: %w", err)
 	}
 
-	// 返回查询结果
-	return interventions, nil
+	result := make([]InterventionRecordResp, 0, len(interventions))
+	for _, intervention := range interventions {
+		result = append(result, toInterventionRecordResp(intervention))
+	}
+	return result, nil
+}
+
+// GenerateInterventionRecordsForResult 根据压力评估结果生成学生干预记录。
+func GenerateInterventionRecordsForResult(tx *gorm.DB, result data_collection.StressAssessmentResult) error {
+	if tx == nil {
+		tx = db.DB
+	}
+	if result.ID == 0 || result.UserID <= 0 {
+		return fmt.Errorf("压力评估结果不完整，无法生成干预记录")
+	}
+	if result.WarningStatus < 0 || result.WarningStatus > 2 {
+		return nil
+	}
+
+	matchScore := result.TotalScore
+	// 高压预警可能由心理分触发，综合分未必落入高压建议区间。
+	if result.WarningStatus == 2 && result.PsychologicalScore > matchScore {
+		matchScore = result.PsychologicalScore
+	}
+
+	var suggestions []data_collection.InterventionSuggestion
+	if err := tx.
+		Where("level = ?", result.WarningStatus).
+		Where("min_score <= ? AND max_score >= ?", matchScore, matchScore).
+		Order("id ASC").
+		Find(&suggestions).Error; err != nil {
+		return fmt.Errorf("匹配干预建议失败: %w", err)
+	}
+	if len(suggestions) == 0 {
+		return nil
+	}
+
+	pushTime := result.CreatedAt
+	if result.WarningTime != nil {
+		pushTime = *result.WarningTime
+	}
+	if pushTime.IsZero() {
+		pushTime = time.Now()
+	}
+
+	for _, suggestion := range suggestions {
+		record := data_collection.StudentInterventionRecord{
+			UserID:       result.UserID,
+			ResultID:     result.ID,
+			SuggestionID: suggestion.ID,
+		}
+		if err := tx.
+			Where(&record).
+			Attrs(data_collection.StudentInterventionRecord{
+				PushTime:       pushTime,
+				FeedbackStatus: 0,
+			}).
+			FirstOrCreate(&record).Error; err != nil {
+			return fmt.Errorf("生成学生干预记录失败: %w", err)
+		}
+	}
+
+	return nil
 }
 
 // GetStudentInterventionRecordsAdvanced 获取干预记录（高级版）

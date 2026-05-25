@@ -1,9 +1,12 @@
 package admin
 
 import (
-	"Monitoring-Pressure/service"
-	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
+
+	"Monitoring-Pressure/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetStressAssessmentResultListHandle(c *gin.Context) {
@@ -52,5 +55,34 @@ func GetStressAssessmentResultListHandle(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "获取成功",
 		"data":    result,
+	})
+}
+
+// PredictStressHandle 调用随机森林服务进行一次压力检测
+// POST /admin/stress/predict
+// body: StressPredictRequest 全部字段
+func PredictStressHandle(c *gin.Context) {
+	var req service.StressPredictRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "请求参数格式错误: " + err.Error(),
+		})
+		return
+	}
+
+	resp, err := service.PredictAndSaveStress(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 500,
+			"msg":  "压力预测失败: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "预测成功",
+		"data": resp,
 	})
 }

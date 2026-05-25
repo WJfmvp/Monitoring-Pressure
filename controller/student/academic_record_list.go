@@ -10,7 +10,7 @@ import (
 )
 
 func GetMyAcademicRecordListHandle(c *gin.Context) {
-	// 1. 从 JWT 中间件注入的上下文中获取当前登录用户ID
+	// 1. 从 jwt 中间件注入的上下文中获取当前登录用户ID
 	userIDValue, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{

@@ -1,4 +1,5 @@
 import uuid
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -9,18 +10,20 @@ from .model_service import model_service
 from .schemas import PredictRequest, PredictResponse
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    model_service.load_model()
+    logger.info("服务启动完成")
+    yield
+
+
 app = FastAPI(
     title="Academic Stress Detection Service",
     version=settings.app_version,
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
-
-
-@app.on_event("startup")
-def startup_event():
-    model_service.load_model()
-    logger.info("服务启动完成")
 
 
 @app.middleware("http")

@@ -1,7 +1,7 @@
 package account
 
 import (
-	myjwt "Monitoring-Pressure/JWT"
+	myjwt "Monitoring-Pressure/jwt"
 	"Monitoring-Pressure/util"
 	"github.com/gin-gonic/gin"
 	"strings"
